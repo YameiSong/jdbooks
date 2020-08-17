@@ -12,6 +12,8 @@ BOT_NAME = 'novelscrape'
 SPIDER_MODULES = ['novelscrape.spiders']
 NEWSPIDER_MODULE = 'novelscrape.spiders'
 
+FEED_EXPORT_ENCODING = 'utf-8'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'novelscrape (+http://www.yourdomain.com)'
