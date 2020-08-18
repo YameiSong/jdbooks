@@ -9,4 +9,5 @@ import scrapy
 class NovelscrapeItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    detail_page = scrapy.Field()
