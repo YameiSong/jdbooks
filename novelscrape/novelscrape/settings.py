@@ -68,6 +68,10 @@ ITEM_PIPELINES = {
    'novelscrape.pipelines.NovelscrapePipeline': 300,
 }
 
+# Configure mongodb
+MONGO_URI = 'localhost:27017'
+MONGO_DATABASE = 'jdbooks'
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True

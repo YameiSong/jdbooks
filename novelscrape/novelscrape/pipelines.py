@@ -12,7 +12,7 @@ class NovelscrapePipeline:
 
     collection_name = 'novels'
 
-    def __init__(self, mongo_uri = 'mongodb://sym:song1995@localhost:27017', mongo_db = 'jdbooks'):
+    def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
 
@@ -31,4 +31,5 @@ class NovelscrapePipeline:
         self.client.close()
 
     def process_item(self, item, spider):
+        self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
         return item
