@@ -5,17 +5,17 @@
 # use the following cmd to output to JSON:
 # scrapy crawl novels -o novels.json
 import scrapy
+from novelscrape.items import NovelscrapeItem
 
 class NovelsSpider(scrapy.Spider):
     name = "novels"
-
     start_urls = [
         'https://channel.jd.com/1713-3258.html'
     ]
 
     def parse(self, response):
         for novel in response.css('.mc .p-name').xpath('.//a'):
-            yield {
-                'title': novel.css('::text').get(),
-                'detail_page': novel.attrib['href'],
-            }
+            item = NovelscrapeItem()
+            item['title'] = novel.css('::text').get()
+            item['detail_page'] = novel.attrib['href']
+            yield item
