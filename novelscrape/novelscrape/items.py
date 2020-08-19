@@ -11,15 +11,16 @@ class NovelscrapeItem(scrapy.Item):
     # name = scrapy.Field()
     title = scrapy.Field()
     detail_page = scrapy.Field()
-
-class DetailItem(scrapy.Item):
-    title = scrapy.Field()
     author = scrapy.Field()
     price = scrapy.Field()
-    discount = scrapy.Field()
-    star = scrapy.Field()
 
-class CommentItem(scrapy.Item):
-    title = scrapy.Field()
-    star = scrapy.Field()
-    comment = scrapy.Field()
+# class DetailItem(scrapy.Item):
+#     title = scrapy.Field()
+#     author = scrapy.Field()
+#     price = scrapy.Field()
+#     discount = scrapy.Field()
+
+# class CommentItem(scrapy.Item):
+#     title = scrapy.Field()
+#     star = scrapy.Field()
+#     comment = scrapy.Field()

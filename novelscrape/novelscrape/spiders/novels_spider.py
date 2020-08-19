@@ -9,6 +9,7 @@
 # output to mongodb:
 # scrapy crawl novels
 
+import json
 import scrapy
 from novelscrape.items import NovelscrapeItem
 
@@ -18,9 +19,53 @@ class NovelsSpider(scrapy.Spider):
         'https://channel.jd.com/1713-3258.html'
     ]
 
+    def __init__(self):
+        with open('novelscrape/cookies.json', 'r') as f:
+            self.cookies = json.load(f)
+
+    def start_requests(self):
+        for url in self.start_urls:
+            yield scrapy.FormRequest(url, cookies=self.cookies, callback=self.parse)
+
     def parse(self, response):
         for novel in response.css('.mc .p-name').xpath('.//a'):
             item = NovelscrapeItem()
             item['title'] = novel.css('::text').get()
             item['detail_page'] = novel.attrib['href']
-            yield item
+            detail_page_url = response.urljoin(item['detail_page'])
+            request = scrapy.Request(
+                detail_page_url, 
+                callback=self.parse_details,
+                cb_kwargs=dict(item = item),
+                cookies=self.cookies
+                )
+            yield request
+    
+    def parse_details(self, response, item):
+        item['author'] = response.css('.p-author a::text').get()
+        # 价格是用js动态渲染的，要换方法抓取
+        item['price'] = response.css('.p-price::text').get()
+        yield item
+
+
+# import scrapy
+# from novelscrape.items import DetailItem
+# import pymongo
+
+# class NovelDetailsSpider(scrapy.Spider):
+#     name = "details"
+
+#     def __init__(self):
+#         # connect to "jdbooks" database
+#         mongo_uri = self.settings.get('MONGO_URI'),
+#         mongo_db = self.settings.get('MONGO_DATABASE', 'items')
+#         self.client = pymongo.MongoClient(self.mongo_uri)
+#         self.db = self.client[self.mongo_db]
+
+#         # get a cursor that points to all "detail_page" in the "novels" collection
+#         self.detail_page_urls = self.db.novels.find({}, {detail_page: 1, _id: 0})
+
+#     def parse(self, response):
+#         for doc in self.detail_page_urls:
+#             url = doc['detail_page']
+            
