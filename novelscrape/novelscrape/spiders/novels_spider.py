@@ -3,7 +3,12 @@
 # FEED_EXPORT_ENCODING = 'utf-8'
 
 # use the following cmd to output to JSON:
+# output to a json file by using scrapy Feed Exports:
 # scrapy crawl novels -o novels.json
+
+# output to mongodb:
+# scrapy crawl novels
+
 import scrapy
 from novelscrape.items import NovelscrapeItem
 
