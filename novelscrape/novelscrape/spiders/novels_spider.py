@@ -12,15 +12,19 @@
 import json
 import scrapy
 from novelscrape.items import NovelscrapeItem
+from scrapy.utils.response import open_in_browser
 
 class NovelsSpider(scrapy.Spider):
+    # debug: i is an assistant for debugging
+    i = 0
+
     name = "novels"
     start_urls = [
         'https://channel.jd.com/1713-3258.html'
     ]
 
     def __init__(self):
-        with open('novelscrape/cookies.json', 'r') as f:
+        with open('cookies.json', 'r') as f:
             self.cookies = json.load(f)
 
     def start_requests(self):
@@ -37,11 +41,20 @@ class NovelsSpider(scrapy.Spider):
                 detail_page_url, 
                 callback=self.parse_details,
                 cb_kwargs=dict(item = item),
-                cookies=self.cookies
+                cookies=self.cookies,
+                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'}
                 )
             yield request
     
     def parse_details(self, response, item):
+        # debug: view the response in browser
+        if self.i == 0:
+            open_in_browser(response)
+            self.i += 1
+
+        # log the url of detail page
+        # self.logger.info('Parse function called on %s', response.url)
+
         item['author'] = response.css('.p-author a::text').get()
         # 价格是用js动态渲染的，要换方法抓取
         item['price'] = response.css('.p-price::text').get()
