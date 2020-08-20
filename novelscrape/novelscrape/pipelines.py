@@ -7,6 +7,8 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import pymongo
+# To query document by _id, I must convert id from string to ObjectId, see https://api.mongodb.com/python/current/tutorial.html#querying-by-objectid
+from bson.objectid import ObjectId
 
 class NovelscrapePipeline:
 
@@ -31,5 +33,20 @@ class NovelscrapePipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+        my_item = ItemAdapter(item).asdict()
+
+        # find one document by title
+        my_doc = self.db[self.collection_name].find_one({'title': my_item['title']})
+        if not my_doc:
+            # if there is no matched document, insert a new one
+            self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+        else:
+            # update the existing document with not-none values
+            self.db[self.collection_name].update(
+                {'_id': ObjectId(my_doc['_id'])},
+                {
+                    '$set': {k: v for k, v in my_item.items() if v is not None}
+                }
+                )
+
         return item

@@ -16,7 +16,7 @@ from scrapy.utils.response import open_in_browser
 
 class NovelsSpider(scrapy.Spider):
     # debug: i is an assistant for debugging
-    i = 0
+    # i = 0
 
     name = "novels"
     start_urls = [
@@ -48,9 +48,9 @@ class NovelsSpider(scrapy.Spider):
     
     def parse_details(self, response, item):
         # debug: view the response in browser
-        if self.i == 0:
-            open_in_browser(response)
-            self.i += 1
+        # if self.i == 0:
+        #     open_in_browser(response)
+        #     self.i += 1
 
         # log the url of detail page
         # self.logger.info('Parse function called on %s', response.url)
