@@ -13,6 +13,7 @@ import json
 import scrapy
 from novelscrape.items import NovelscrapeItem
 from scrapy.utils.response import open_in_browser
+import scrapy_splash
 
 class NovelsSpider(scrapy.Spider):
     # debug: i is an assistant for debugging
@@ -27,9 +28,9 @@ class NovelsSpider(scrapy.Spider):
         with open('cookies.json', 'r') as f:
             self.cookies = json.load(f)
 
-    def start_requests(self):
-        for url in self.start_urls:
-            yield scrapy.FormRequest(url, cookies=self.cookies, callback=self.parse)
+    # def start_requests(self):
+    #     for url in self.start_urls:
+    #         yield scrapy.FormRequest(url, cookies=self.cookies, callback=self.parse)
 
     def parse(self, response):
         for novel in response.css('.mc .p-name').xpath('.//a'):
@@ -37,12 +38,18 @@ class NovelsSpider(scrapy.Spider):
             item['title'] = novel.css('::text').get()
             item['detail_page'] = novel.attrib['href']
             detail_page_url = response.urljoin(item['detail_page'])
+
             request = scrapy.Request(
                 detail_page_url, 
                 callback=self.parse_details,
                 cb_kwargs=dict(item = item),
                 cookies=self.cookies,
-                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'}
+                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'},
+                meta={
+                    'splash': {
+                        'args': {'wait': 0.5}
+                    }
+                }
                 )
             yield request
     
