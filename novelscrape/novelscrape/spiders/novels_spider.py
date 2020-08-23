@@ -13,7 +13,8 @@ import json
 import scrapy
 from novelscrape.items import NovelscrapeItem
 from scrapy.utils.response import open_in_browser
-import scrapy_splash
+from scrapy_splash import SplashRequest
+# no mudule named scrapy-splash?
 
 class NovelsSpider(scrapy.Spider):
     # debug: i is an assistant for debugging
@@ -39,21 +40,24 @@ class NovelsSpider(scrapy.Spider):
             item['detail_page'] = novel.attrib['href']
             detail_page_url = response.urljoin(item['detail_page'])
 
-            request = scrapy.Request(
+            # request = scrapy.Request(
+            #     detail_page_url, 
+            #     callback=self.parse_details,
+            #     cb_kwargs=dict(item = item),
+            #     cookies=self.cookies,
+            #     headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'}
+            #     )
+
+            request = SplashRequest(
                 detail_page_url, 
-                callback=self.parse_details,
-                cb_kwargs=dict(item = item),
+                self.parse_details,
+                meta=dict(item = item),
                 cookies=self.cookies,
-                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'},
-                meta={
-                    'splash': {
-                        'args': {'wait': 0.5}
-                    }
-                }
+                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'}
                 )
             yield request
     
-    def parse_details(self, response, item):
+    def parse_details(self, response):
         # debug: view the response in browser
         # if self.i == 0:
         #     open_in_browser(response)
@@ -62,9 +66,11 @@ class NovelsSpider(scrapy.Spider):
         # log the url of detail page
         # self.logger.info('Parse function called on %s', response.url)
 
+        item = response.meta['item']
         item['author'] = response.css('.p-author a::text').get()
-        # 价格是用js动态渲染的，要换方法抓取
-        item['price'] = response.css('.p-price::text').get()
+        price = response.css('.dd .p-price::text').get()
+        if price: item['price'] = price
+        
         yield item
 
 
