@@ -6,6 +6,9 @@
 # output to a json file by using scrapy Feed Exports:
 # scrapy crawl novels -o novels.json
 
+# start a splash instance:
+# docker run -p 8050:8050 scrapinghub/splash
+
 # output to mongodb:
 # scrapy crawl novels
 
@@ -26,7 +29,7 @@ class NovelsSpider(scrapy.Spider):
     ]
 
     def __init__(self):
-        with open('cookies.json', 'r') as f:
+        with open('novelscrape/cookies.json', 'r') as f:
             self.cookies = json.load(f)
 
     # def start_requests(self):
@@ -67,8 +70,10 @@ class NovelsSpider(scrapy.Spider):
         # self.logger.info('Parse function called on %s', response.url)
 
         item = response.meta['item']
-        item['author'] = response.css('.p-author a::text').get()
+        author = response.css('.p-author a::text').get()
         price = response.css('.dd .p-price::text').get()
+
+        if author: item['author'] = author
         if price: item['price'] = price
         
         yield item
