@@ -17,7 +17,13 @@ import scrapy
 from novelscrape.items import NovelscrapeItem
 from scrapy.utils.response import open_in_browser
 from scrapy_splash import SplashRequest
-# no mudule named scrapy-splash?
+
+from novelscrape.items import CommentItem
+import pymongo
+
+from twisted.internet import reactor, defer
+from scrapy.crawler import CrawlerRunner
+from scrapy.utils.log import configure_logging
 
 class NovelsSpider(scrapy.Spider):
     # debug: i is an assistant for debugging
@@ -79,24 +85,27 @@ class NovelsSpider(scrapy.Spider):
         yield item
 
 
-# import scrapy
-# from novelscrape.items import DetailItem
-# import pymongo
+class CommentsSpider(scrapy.Spider):
+    name = "comments"
 
-# class NovelDetailsSpider(scrapy.Spider):
-#     name = "details"
+    def __init__(self):
+        # connect to "jdbooks" database
+        mongo_uri = self.settings.get('MONGO_URI'),
+        mongo_db = self.settings.get('MONGO_DATABASE')
+        self.client = pymongo.MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
 
-#     def __init__(self):
-#         # connect to "jdbooks" database
-#         mongo_uri = self.settings.get('MONGO_URI'),
-#         mongo_db = self.settings.get('MONGO_DATABASE', 'items')
-#         self.client = pymongo.MongoClient(self.mongo_uri)
-#         self.db = self.client[self.mongo_db]
+        # get a cursor that points to all "detail_page" and "_id" in the "novels" collection
+        self.detail_page_urls = self.db.novels.find({}, {'detail_page': 1})
 
-#         # get a cursor that points to all "detail_page" in the "novels" collection
-#         self.detail_page_urls = self.db.novels.find({}, {detail_page: 1, _id: 0})
+    def parse(self, response):
+        for doc in self.detail_page_urls:
+            my_novel_id = doc['_id']
+            my_url = doc['detail_page']
 
-#     def parse(self, response):
-#         for doc in self.detail_page_urls:
-#             url = doc['detail_page']
-            
+            # Comment JSON example:
+            # https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98&productId=12767148&score=0&sortType=5&page=0&pageSize=10&isShadowSku=0&fold=1
+            # Parameters to be modified: 
+            #    1) productId: can be extracted from "detail_page" url 
+            #    2) page: add 1 to read the next comment page
+            # The comment list starts from the word: "comments" in the JSON file
