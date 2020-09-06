@@ -14,13 +14,7 @@ class NovelscrapeItem(scrapy.Item):
     author = scrapy.Field()
     price = scrapy.Field()
 
-# class DetailItem(scrapy.Item):
-#     title = scrapy.Field()
-#     author = scrapy.Field()
-#     price = scrapy.Field()
-#     discount = scrapy.Field()
-
-# class CommentItem(scrapy.Item):
-#     title = scrapy.Field()
-#     star = scrapy.Field()
-#     comment = scrapy.Field()
+class CommentItem(scrapy.Item):
+    novel_id = scrapy.Field()
+    star = scrapy.Field()
+    comment = scrapy.Field()
