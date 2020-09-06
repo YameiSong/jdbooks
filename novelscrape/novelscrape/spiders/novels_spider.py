@@ -49,14 +49,6 @@ class NovelsSpider(scrapy.Spider):
             item['detail_page'] = novel.attrib['href']
             detail_page_url = response.urljoin(item['detail_page'])
 
-            # request = scrapy.Request(
-            #     detail_page_url, 
-            #     callback=self.parse_details,
-            #     cb_kwargs=dict(item = item),
-            #     cookies=self.cookies,
-            #     headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'}
-            #     )
-
             request = SplashRequest(
                 detail_page_url, 
                 self.parse_details,
