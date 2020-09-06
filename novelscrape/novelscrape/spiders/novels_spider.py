@@ -105,6 +105,7 @@ class CommentsSpider(scrapy.Spider):
 
             # Comment JSON example:
             # https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98&productId=12767148&score=0&sortType=5&page=0&pageSize=10&isShadowSku=0&fold=1
+            # Note that "skuProductPageComments" means "only shows comments of the current product"; if "productPageComments", shows all relevant books of the same series.
             # Parameters to be modified: 
             #    1) productId: can be extracted from "detail_page" url 
             #    2) page: add 1 to read the next comment page
