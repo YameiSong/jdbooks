@@ -38,8 +38,6 @@ class NovelscrapePipeline:
         if spider.name == 'comments':
             collection_name = 'comments'
             search_by = 'comment_id'
-        else:
-            self.logger.debug('Pipelines: No matched spider')
 
         my_item = ItemAdapter(item).asdict()
         

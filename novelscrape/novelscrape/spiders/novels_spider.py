@@ -40,8 +40,8 @@ class NovelsSpider(scrapy.Spider):
             item['title'] = novel.css('::text').get()
             item['detail_page'] = novel.attrib['href']
             detail_page_url = response.urljoin(item['detail_page'])
-            x = re.search(r'//item.jd.com/(/d+).html', item['detail_page'])
-            item['product_id'] = x.group(0)
+            x = re.search(r'item.jd.com\/(\d+).html', item['detail_page'])
+            item['product_id'] = int(x.group(1))
 
             request = SplashRequest(
                 detail_page_url, 
@@ -66,6 +66,6 @@ class NovelsSpider(scrapy.Spider):
         price = response.css('.dd .p-price::text').get()
 
         if author: item['author'] = author
-        if price: item['price'] = price
+        if price: item['price'] = float(price)
         
         yield item
