@@ -79,5 +79,3 @@ class CommentsSpider(scrapy.Spider):
                 callback=self.parse, 
                 meta={'product_id': product_id, 'page': page}
                 )
-        else:
-            return
