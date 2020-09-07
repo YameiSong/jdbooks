@@ -33,20 +33,23 @@ class NovelscrapePipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        my_item = ItemAdapter(item).asdict()
+        if spider.name == 'novels':
+            my_item = ItemAdapter(item).asdict()
 
-        # find one document by title
-        my_doc = self.db[self.collection_name].find_one({'title': my_item['title']})
-        if not my_doc:
-            # if there is no matched document, insert a new one
-            self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
-        else:
-            # update the existing document with not-none values
-            self.db[self.collection_name].update(
-                {'_id': ObjectId(my_doc['_id'])},
-                {
-                    '$set': {k: v for k, v in my_item.items() if v is not None}
-                }
-                )
+            # find one document by title
+            my_doc = self.db[self.collection_name].find_one({'title': my_item['title']})
+            if not my_doc:
+                # if there is no matched document, insert a new one
+                self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+            else:
+                # update the existing document with not-none values
+                self.db[self.collection_name].update(
+                    {'_id': ObjectId(my_doc['_id'])},
+                    {
+                        '$set': {k: v for k, v in my_item.items() if v is not None}
+                    }
+                    )
 
+            return item
+        
         return item
