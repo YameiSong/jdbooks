@@ -8,6 +8,17 @@ class CommentsSpider(scrapy.Spider):
 
     base_url = 'https://club.jd.com/comment/skuProductPageComments.action'
 
+    params = {
+                'callback': 'fetchJSON_comment98',
+                'productId': 0,
+                'score': 0,
+                'sortType': 5,
+                'page': 0,
+                'pageSize': 10,
+                'isShadowSku': 0,
+                'fold': 1
+            }
+
     def __init__(self):
         # connect to "jdbooks" database
         mongo_uri = self.settings.get('MONGO_URI'),
@@ -24,20 +35,11 @@ class CommentsSpider(scrapy.Spider):
     def start_requests(self):
 
         for pid in self.product_ids:
-            params = {
-                'callback': 'fetchJSON_comment98',
-                'productId': pid,
-                'score': 0,
-                'sortType': 5,
-                'page': 0,
-                'pageSize': 10,
-                'isShadowSku': 0,
-                'fold': 1
-            }
+            self.params['product_id'] = pid
 
             yield scrapy.FormRequest(
                 url=self.base_url, 
-                formdata=params, 
+                formdata=self.params, 
                 callback=self.parse, 
                 meta={'product_id': pid, 'page': 0}
                 )
@@ -61,21 +63,12 @@ class CommentsSpider(scrapy.Spider):
         
         if page < info_dict['maxPage'] - 1:
             page += 1
-
-            params = {
-                'callback': 'fetchJSON_comment98',
-                'productId': product_id,
-                'score': 0,
-                'sortType': 5,
-                'page': page,
-                'pageSize': 10,
-                'isShadowSku': 0,
-                'fold': 1
-            }
+            self.params['product_id'] = product_id
+            self.params['page'] = page
 
             yield scrapy.FormRequest(
                 url=self.base_url, 
-                formdata=params, 
+                formdata=self.params, 
                 callback=self.parse, 
                 meta={'product_id': product_id, 'page': page}
                 )
