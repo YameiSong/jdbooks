@@ -54,6 +54,7 @@ class CommentsSpider(scrapy.Spider):
 
         comments_list = info_dict['comments']
         for cm in comments_list:
+            item['comment_id'] = cm['id']
             item['score'] = cm['score']
             item['content'] = cm['content']
             yield item

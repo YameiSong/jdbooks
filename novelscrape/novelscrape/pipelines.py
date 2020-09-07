@@ -12,8 +12,6 @@ from bson.objectid import ObjectId
 
 class NovelscrapePipeline:
 
-    collection_name = 'novels'
-
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
@@ -22,7 +20,7 @@ class NovelscrapePipeline:
     def from_crawler(cls, crawler):
         return cls(
             mongo_uri = crawler.settings.get('MONGO_URI'),
-            mongo_db = crawler.settings.get('MONGO_DATABASE', 'items')
+            mongo_db = crawler.settings.get('MONGO_DATABASE')
         )
 
     def open_spider(self, spider):
@@ -33,23 +31,31 @@ class NovelscrapePipeline:
         self.client.close()
 
     def process_item(self, item, spider):
+
         if spider.name == 'novels':
-            my_item = ItemAdapter(item).asdict()
+            collection_name = 'novels'
+            search_by = 'title'
+        if spider.name == 'comments':
+            collection_name = 'comments'
+            search_by = 'comment_id'
+        else:
+            self.logger.debug('Pipelines: No matched spider')
 
-            # find one document by title
-            my_doc = self.db[self.collection_name].find_one({'title': my_item['title']})
-            if not my_doc:
-                # if there is no matched document, insert a new one
-                self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
-            else:
-                # update the existing document with not-none values
-                self.db[self.collection_name].update(
-                    {'_id': ObjectId(my_doc['_id'])},
-                    {
-                        '$set': {k: v for k, v in my_item.items() if v is not None}
-                    }
-                    )
-
-            return item
+        my_item = ItemAdapter(item).asdict()
         
+        # find one document by title
+        my_doc = self.db[collection_name].find_one({search_by: my_item[search_by]})
+
+        if not my_doc:
+            # if there is no matched document, insert a new one
+            self.db[collection_name].insert_one(ItemAdapter(item).asdict())
+        else:
+            # update the existing document with not-none values
+            self.db[collection_name].update(
+                {'_id': ObjectId(my_doc['_id'])},
+                {
+                    '$set': {k: v for k, v in my_item.items() if v is not None}
+                }
+                )
+
         return item
