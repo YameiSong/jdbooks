@@ -27,7 +27,10 @@ class NovelsSpider(scrapy.Spider):
 
     name = "novels"
     start_urls = [
-        'https://channel.jd.com/1713-3258.html'
+        'https://channel.jd.com/1713-3258.html',
+        'https://channel.jd.com/1713-3259.html',
+        'https://channel.jd.com/1713-3261.html',
+        'https://channel.jd.com/1713-3260.html'
     ]
 
     def __init__(self):
